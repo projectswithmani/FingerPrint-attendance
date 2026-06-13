@@ -59,12 +59,12 @@
 
 ### R307 Fingerprint Sensor → NodeMCU
 
-| Sensor Pin | NodeMCU Pin | Notes |
-|------------|-------------|-------|
-| VCC | VIN | Must be 5V — use VIN not 3.3V |
-| GND | GND | |
-| TX | D5 | Sensor TX → MCU reads |
-| RX | D6 | Sensor RX → MCU writes |
+| Sensor Pin | NodeMCU Pin | Wire | Notes |
+|------------|-------------|------|-------|
+| VCC | VIN | 🔴 Red | Must be 5V — use VIN not 3.3V |
+| GND | GND | ⚫ Black | |
+| TX | D5 | 🟡 Yellow | Sensor TX → MCU reads |
+| RX | D6 | 🟢 Green | Sensor RX → MCU writes |
 
 > ⚠️ Cross-connect: Sensor TX → D5 and Sensor RX → D6
 
