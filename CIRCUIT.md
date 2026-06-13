@@ -1,132 +1,104 @@
-# FingerAttend — Circuit & Wiring Reference
+<div align="center">
 
-> ESP8266 NodeMCU · SSD1306 OLED · R307 Fingerprint Sensor · Passive Buzzer
+# 🫆 FingerAttend
 
----
+### Fingerprint-Based Smart Attendance System
 
-## Components Required
+![ESP8266](https://img.shields.io/badge/ESP8266-NodeMCU-blue?style=for-the-badge&logo=arduino)
+![Platform](https://img.shields.io/badge/Platform-Arduino-teal?style=for-the-badge&logo=arduino)
+![Cloud](https://img.shields.io/badge/Cloud-Google%20Sheets-green?style=for-the-badge&logo=googlesheets)
+![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
 
-| # | Component | Specification |
-|---|-----------|--------------|
-| 1 | Microcontroller | ESP8266 NodeMCU v1.0 (CP2102) |
-| 2 | Display | SSD1306 OLED 128×64 I2C (0.96") |
-| 3 | Fingerprint Sensor | R307 / R503 Optical (UART) |
-| 4 | Buzzer | Passive buzzer (3.3V compatible) |
-| 5 | Power | USB 5V via NodeMCU USB port |
+*Mark attendance with a fingerprint. Logs instantly to Google Sheets.*
+*Manage everything from a web dashboard on your phone.*
 
----
-
-## Pin Mapping
-
-### SSD1306 OLED Display (I2C)
-
-| OLED Pin | NodeMCU Pin | Wire Color | Notes |
-|----------|-------------|------------|-------|
-| VCC | 3.3V | 🔴 Red | 3.3V only — NOT 5V |
-| GND | GND | ⚫ Black | Any GND pin |
-| SCL | D1 (GPIO5) | 🔵 Blue | I2C clock |
-| SDA | D2 (GPIO4) | 🟢 Green | I2C data |
-
-> I2C Address: `0x3C`
-> Initialized with: `Wire.begin(D2, D1)`
+</div>
 
 ---
 
-### R307 Fingerprint Sensor (UART via SoftwareSerial)
+## ✨ Features
 
-| Sensor Pin | NodeMCU Pin | Wire Color | Notes |
-|------------|-------------|------------|-------|
-| VCC | 5V (VIN) | 🔴 Red | Needs 5V — use VIN not 3.3V |
-| GND | GND | ⚫ Black | Any GND pin |
-| TX (sensor) | D5 (GPIO14) | 🔵 Blue | Sensor TX → MCU RX |
-| RX (sensor) | D6 (GPIO12) | 🟢 Green | Sensor RX → MCU TX |
-
-> Baud rate: `57600`
-> SoftwareSerial: `SoftwareSerial mySerial(D5, D6)`
-> ⚠️ Cross-connect: Sensor TX → D5 (MCU reads), Sensor RX → D6 (MCU writes)
+- 🫆 **Fingerprint scanning** — R307 optical sensor, stores up to 127 prints
+- 📊 **Google Sheets logging** — real-time attendance via Apps Script webhook
+- 🌐 **Local web dashboard** — enroll, remove and view logs from any browser
+- 🖥️ **OLED display** — live status, animations and scan feedback
+- 🔔 **Buzzer feedback** — distinct tones for success, denied and enroll
+- 👻 **Ghost-read protection** — triple-read validation + confidence threshold
+- 📡 **WiFi hosted** — ESP8266 runs its own web server on port 80
 
 ---
 
-### Passive Buzzer
+## 🧰 Components Required
 
-| Buzzer Pin | NodeMCU Pin | Wire Color | Notes |
-|------------|-------------|------------|-------|
-| + (positive) | D3 (GPIO0) | 🟣 Purple | PWM signal via tone() |
-| − (negative) | GND | ⚫ Black | Any GND pin |
-
-> Uses Arduino `tone()` / `noTone()` for frequency control
-> ⚠️ Use **passive** buzzer only — active buzzers ignore tone() frequency
-
----
-
-## Power Summary
-
-```
-USB 5V
-  └── NodeMCU onboard regulator
-        ├── 3.3V pin  ──→  OLED VCC
-        └── VIN (5V)  ──→  Fingerprint VCC
-```
-
-> The OLED and buzzer run on 3.3V.
-> The R307 fingerprint sensor requires 5V — use the VIN pin (bypasses regulator).
+| # | Component |
+|---|-----------|
+| 1 | ESP8266 NodeMCU v1.0 |
+| 2 | SSD1306 OLED 128×64 I2C (0.96") |
+| 3 | R307 / R503 Fingerprint Sensor |
+| 4 | Passive Buzzer |
+| 5 | Breadboard |
+| 6 | Jumper wires |
+| 7 | USB cable (Micro USB) |
 
 ---
 
-## Full Wiring Table (Quick Reference)
+## ⚡ Wiring
 
-| From (NodeMCU) | To (Component) | Color | Function |
-|----------------|----------------|-------|----------|
-| 3.3V | OLED VCC | 🔴 Red | Power |
-| GND | OLED GND | ⚫ Black | Ground |
-| D1 | OLED SCL | 🔵 Blue | I2C Clock |
-| D2 | OLED SDA | 🟢 Green | I2C Data |
-| D3 | Buzzer + | 🟣 Purple | PWM tone |
-| GND | Buzzer − | ⚫ Black | Ground |
-| VIN (5V) | FP VCC | 🔴 Red | Power |
-| GND | FP GND | ⚫ Black | Ground |
-| D5 | FP TX | 🔵 Blue | Serial RX (MCU reads) |
-| D6 | FP RX | 🟢 Green | Serial TX (MCU writes) |
+### SSD1306 OLED → NodeMCU
+
+| OLED Pin | NodeMCU Pin | Notes |
+|----------|-------------|-------|
+| VCC | 3.3V | 3.3V only — not 5V |
+| GND | GND | |
+| SCL | D1 | I2C clock |
+| SDA | D2 | I2C data |
+
+> I2C address: `0x3C` · Initialized with `Wire.begin(D2, D1)`
 
 ---
 
-## I2C Bus Notes
+### R307 Fingerprint Sensor → NodeMCU
 
-- Both OLED **SCL and SDA** lines should have **4.7kΩ pull-up resistors** to 3.3V
-- Most SSD1306 breakout boards include these resistors onboard
-- If OLED doesn't initialize, check pull-ups first
+| Sensor Pin | NodeMCU Pin | Notes |
+|------------|-------------|-------|
+| VCC | VIN | Must be 5V — use VIN not 3.3V |
+| GND | GND | |
+| TX | D5 | Sensor TX → MCU reads |
+| RX | D6 | Sensor RX → MCU writes |
 
----
-
-## Libraries Required
-
-Install via Arduino IDE → Library Manager:
-
-```
-Adafruit SSD1306        by Adafruit
-Adafruit GFX Library    by Adafruit
-Adafruit Fingerprint    by Adafruit
-ESP8266WiFi             (built-in with ESP8266 board package)
-ESP8266HTTPClient       (built-in with ESP8266 board package)
-ESP8266WebServer        (built-in with ESP8266 board package)
-```
-
-Board package URL (paste in Arduino Preferences):
-```
-http://arduino.esp8266.com/stable/package_esp8266com_index.json
-```
-
-Board settings:
-```
-Board:       NodeMCU 1.0 (ESP-12E Module)
-CPU Freq:    80 MHz
-Flash Size:  4MB (FS:2MB OTA:~1019KB)
-Upload Speed: 115200
-```
+> ⚠️ Cross-connect: Sensor TX → D5 and Sensor RX → D6
 
 ---
 
-## Schematic (ASCII)
+### Passive Buzzer → NodeMCU
+
+| Buzzer Pin | NodeMCU Pin | Notes |
+|------------|-------------|-------|
+| + | D3 | PWM signal via `tone()` |
+| − | GND | |
+
+> ⚠️ Must be a **passive** buzzer — active buzzers won't work with `tone()`
+
+---
+
+### Full Wiring at a Glance
+
+| NodeMCU | Component |
+|---------|-----------|
+| 3.3V | OLED VCC |
+| GND | OLED GND |
+| D1 | OLED SCL |
+| D2 | OLED SDA |
+| D3 | Buzzer + |
+| GND | Buzzer − |
+| VIN | Fingerprint VCC |
+| GND | Fingerprint GND |
+| D5 | Fingerprint TX |
+| D6 | Fingerprint RX |
+
+---
+
+### Schematic
 
 ```
                     ┌─────────────────────┐
@@ -135,39 +107,261 @@ Upload Speed: 115200
   ┌──────────┐      │  3.3V ──────────────┼──→ OLED VCC
   │SSD1306   │      │  GND  ──────────────┼──→ OLED GND
   │OLED      │◄─────┤  D1   ──────────────┼──→ OLED SCL
-  │128x64    │      │  D2   ──────────────┼──→ OLED SDA
+  │128×64    │      │  D2   ──────────────┼──→ OLED SDA
   └──────────┘      │                     │
                     │  D3   ──────────────┼──→ Buzzer +
   ┌──────────┐      │  GND  ──────────────┼──→ Buzzer −
   │Passive   │◄─────┤                     │
-  │Buzzer    │      │  VIN  ──────────────┼──→ FP VCC
+  │Buzzer    │      │  VIN  ──────────────┼──→ FP VCC (5V)
   └──────────┘      │  GND  ──────────────┼──→ FP GND
                     │  D5   ◄─────────────┼──  FP TX
   ┌──────────┐      │  D6   ──────────────┼──→ FP RX
   │R307      │◄─────┤                     │
-  │Fingerprint│     │  WiFi ═════════════ ┼══→ Hotspot
-  └──────────┘      │                     │     (pwm / 12345678)
-                    └─────────────────────┘
-                               │
-                             USB 5V
+  │Fingerprint│     └─────────────────────┘
+  └──────────┘                 │
+                             USB cable
+                          (power + upload)
+```
+
+### Power Notes
+
+```
+USB 5V via cable
+  └── NodeMCU onboard regulator
+        ├── 3.3V  ──→  OLED
+        └── VIN   ──→  Fingerprint sensor (needs full 5V)
 ```
 
 ---
 
-## Troubleshooting
+## 🚀 Setup
 
-| Problem | Likely Cause | Fix |
-|---------|-------------|-----|
-| OLED blank | Wrong I2C address | Try `0x3D` instead of `0x3C` |
-| OLED garbled | SDA/SCL swapped | Swap D1 and D2 |
-| Fingerprint not found | Using 3.3V | Move to VIN (5V) |
-| Fingerprint ghost reads | Sensor noise | Already fixed in code with triple-read validation |
-| Buzzer silent | Active buzzer used | Replace with passive buzzer |
-| Buzzer always on | D3 floating at boot | Add 10kΩ pull-down resistor on D3 |
-| WiFi not connecting | Hotspot not on | Enable hotspot: SSID `pwm` / Pass `12345678` |
-| Google Sheets timeout | SSL issue | `client.setInsecure()` already set in code |
+### Step 1 — Arduino IDE Board Setup
+
+Add this URL in **File → Preferences → Additional boards manager URLs:**
+
+```
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
+
+Then go to **Tools → Board → Boards Manager**, search `ESP8266` and install.
+
+Board settings in **Tools:**
+
+```
+Board        : NodeMCU 1.0 (ESP-12E Module)
+CPU Freq     : 80 MHz
+Flash Size   : 4MB (FS:2MB OTA:~1019KB)
+Upload Speed : 115200
+```
 
 ---
 
-*FingerAttend — Open Source Fingerprint Attendance System*
+### Step 2 — Install Libraries
+
+Go to **Sketch → Include Library → Manage Libraries** and install:
+
+```
+Adafruit SSD1306
+Adafruit GFX Library
+Adafruit Fingerprint Sensor Library
+```
+
+> `ESP8266WiFi`, `ESP8266HTTPClient` and `ESP8266WebServer` come built-in with the board package.
+
+---
+
+### Step 3 — WiFi Hotspot
+
+Enable a mobile hotspot on your phone:
+
+```
+SSID     : pwm
+Password : 12345678
+```
+
+> To use a different network change these lines in the sketch:
+> ```cpp
+> const char* ssid     = "pwm";
+> const char* password = "12345678";
+> ```
+
+---
+
+### Step 4 — Google Sheets Setup
+
+#### 4a — Create the spreadsheet
+
+1. Go to [sheets.google.com](https://sheets.google.com)
+2. Create a new spreadsheet and name it `FingerAttend`
+
+#### 4b — Add the Apps Script
+
+1. Inside the spreadsheet click **Extensions → Apps Script**
+2. Delete any existing code and paste this:
+
+```javascript
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([new Date(), data.id, data.name, data.status]);
+  return ContentService.createTextOutput("OK");
+}
+
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  sheet.appendRow([
+    new Date(),
+    e.parameter.id,
+    e.parameter.name,
+    e.parameter.status
+  ]);
+  return ContentService.createTextOutput("OK");
+}
+```
+
+3. Click **Save**
+
+#### 4c — Deploy as Web App
+
+1. Click **Deploy → New Deployment**
+2. Click the gear icon next to Type → select **Web App**
+3. Set:
+   - Execute as: **Me**
+   - Who has access: **Anyone**
+4. Click **Deploy → Authorize access** and allow permissions
+5. Copy the **Web App URL** — it looks like:
+
+```
+https://script.google.com/macros/s/AKfycb.........../exec
+```
+
+#### 4d — Paste URL into sketch
+
+Find this line in the sketch and replace with your URL:
+
+```cpp
+const char* scriptURL = "https://script.google.com/macros/s/YOUR_URL_HERE/exec";
+```
+
+#### 4e — Test it
+
+Paste this in your browser (replace with your URL):
+
+```
+https://script.google.com/macros/s/YOUR_URL_HERE/exec?id=1&name=Test&status=Present
+```
+
+A new row should appear in your spreadsheet instantly. If it does — you are ready.
+
+---
+
+### Step 5 — Add Names
+
+Edit `getNameByID()` in the sketch to match your enrolled fingerprint IDs:
+
+```cpp
+String getNameByID(int id) {
+  switch (id) {
+    case 1: return "Alice";
+    case 2: return "Bob";
+    case 3: return "Charlie";
+    // add more...
+    default: return "User_" + String(id);
+  }
+}
+```
+
+---
+
+### Step 6 — Upload and Run
+
+1. Connect NodeMCU via USB cable
+2. Select the correct COM port in **Tools → Port**
+3. Click **Upload**
+4. Open **Serial Monitor** at `115200` baud
+5. Turn on hotspot `pwm`
+6. The IP address will show on the OLED and in Serial Monitor
+7. Open that IP in any browser connected to the hotspot
+
+---
+
+## 🌐 Web Dashboard
+
+Connect any device to hotspot `pwm` and open the IP shown on the OLED in a browser.
+
+| Feature | Description |
+|---------|-------------|
+| Overview | Total enrolled IDs and today's log count |
+| Enroll | Enter ID + Name → click Enroll → place finger on sensor |
+| Remove | Remove any fingerprint by ID or click Remove next to it in the list |
+| Stored IDs | Live list of all enrolled fingerprints with names |
+| Attendance log | Every scan with name, ID, time and status |
+| Auto-refresh | Stats and mode update every 3 seconds automatically |
+
+---
+
+## 🖥️ Serial Commands
+
+Open Serial Monitor at **115200 baud:**
+
+| Command | Action |
+|---------|--------|
+| `A` | Enter enroll mode |
+| `#5` | Enroll fingerprint as ID 5 |
+| `#12` | Enroll fingerprint as ID 12 |
+| `R#5` | Delete fingerprint ID 5 |
+| `R#12` | Delete fingerprint ID 12 |
+| `L` | List all stored IDs |
+
+---
+
+## 📋 Attendance Sheet Output
+
+| Timestamp | ID | Name | Status |
+|-----------|----|------|--------|
+| 6/14/2026 09:00:01 | 1 | Alice | Present |
+| 6/14/2026 09:02:45 | 2 | Bob | Present |
+| 6/14/2026 09:05:12 | 3 | Charlie | Present |
+
+---
+
+## 🔧 Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| OLED blank | Try I2C address `0x3D` instead of `0x3C` in code |
+| OLED garbled | Swap D1 and D2 jumpers |
+| Fingerprint not found | Check VCC is on VIN not 3.3V |
+| Ghost reads | Already fixed — triple-read + confidence filter built in |
+| Buzzer silent | Make sure it is a passive buzzer not active |
+| WiFi not connecting | Turn on hotspot SSID `pwm` · Password `12345678` |
+| Sheets not logging | Re-deploy Apps Script and paste the new URL in code |
+| Dashboard not loading | Make sure your device is connected to hotspot `pwm` |
+| HTTP error on POST | `client.setInsecure()` already set — check script URL is correct |
+
+---
+
+## 🛠️ Built With
+
+- [Arduino ESP8266 Core](https://github.com/esp8266/Arduino)
+- [Adafruit SSD1306](https://github.com/adafruit/Adafruit_SSD1306)
+- [Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
+- [Adafruit Fingerprint Sensor Library](https://github.com/adafruit/Adafruit-Fingerprint-Sensor-Library)
+- [Google Apps Script](https://developers.google.com/apps-script)
+
+---
+
+## 📄 License
+
+MIT License — free to use, modify and distribute.
+
+---
+
+<div align="center">
+
+Made with ❤️ — FingerAttend Open Source Project
+
 *Hardware: ESP8266 · Software: Arduino C++ · Cloud: Google Sheets*
+
+</div>
